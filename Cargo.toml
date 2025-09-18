@@ -7,3 +7,9 @@ license = "AGPL-3.0"
 repository = "https://github.com/skoove/dust_bunny"
 
 [dependencies]
+bytemuck = "1.23"
+glam = "0.30" # math
+log = "0.4"
+pollster = "0.4"
+sdl3 = {version = "0.15", features = ["raw-window-handle"]}
+wgpu = "26.0"
