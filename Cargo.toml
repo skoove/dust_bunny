@@ -3,7 +3,7 @@ name = "dust_bunny"
 version = "0.1.0"
 edition = "2024"
 description = "simple library for rendering particle simulations"
-licence = "AGPL-3.0"
+license = "AGPL-3.0"
 repository = "https://github.com/skoove/dust_bunny"
 
 [dependencies]
