@@ -48,8 +48,6 @@ fn main() {
 
             let colour = hsv::hsv_to_rgb(hue * i as f64, 1.0, 1.0);
 
-            println!("{colour:#?}");
-
             circle_data.push((pos, (colour.0, colour.1, colour.2, 255)));
         }
 
