@@ -106,7 +106,16 @@ impl Renderer {
             return Ok(());
         }
 
-        let output = self.surface.get_current_texture()?;
+        let output = match self.surface.get_current_texture() {
+            Ok(output) => output,
+            Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                self.resize();
+                return Ok(());
+            }
+            Err(e) => {
+                return Err(e);
+            }
+        };
 
         let view = output
             .texture

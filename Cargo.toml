@@ -13,3 +13,6 @@ log = "0.4"
 pollster = "0.4"
 sdl3 = {version = "0.15", features = ["raw-window-handle"]}
 wgpu = "26.0"
+
+[dev-dependencies]
+env_logger = "0.11"
