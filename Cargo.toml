@@ -8,6 +8,7 @@ repository = "https://github.com/skoove/dust_bunny"
 
 [dependencies]
 bytemuck = "1.23"
+egui-wgpu = "0.32"
 glam = "0.30" # math
 log = "0.4"
 pollster = "0.4"
