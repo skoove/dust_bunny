@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use glam::Vec2;
 use sdl3::event::{Event, WindowEvent};
@@ -18,19 +18,21 @@ fn main() {
 
     let mut renderer = dust_bunny::Renderer::new(window);
 
+    let target_frame_time = Duration::from_secs_f32(1.0 / 100.0);
+
     let mut render_commands = dust_bunny::RenderCommands::new();
-    let mut last_time = Instant::now();
     let mut angle = 0.0;
+    let mut delta_secs: f32 = 0.0;
 
     'running: loop {
-        let now = Instant::now();
-        let dt = (now - last_time).as_secs_f32();
-        last_time = now;
+        let start_instant = Instant::now();
 
-        angle += dt * 2.0;
+        println!("{}", 1.0 / delta_secs);
+
+        angle += delta_secs * 2.0;
         angle %= std::f32::consts::TAU;
 
-        let orbit_radius = 250.0;
+        let orbit_radius = 10.0;
         let count = 5;
 
         let mut positions = vec![];
@@ -44,7 +46,7 @@ fn main() {
         }
 
         for pos in positions {
-            render_commands.draw_circle(pos, 50.0);
+            render_commands.draw_circle(pos, 3.0);
         }
 
         renderer.render(&render_commands).unwrap();
@@ -61,5 +63,12 @@ fn main() {
                 _ => {}
             }
         }
+
+        while (Instant::now() - start_instant) < target_frame_time {
+            // I found that 200 is enough that the cpu is not being hammered,
+            // and that the framerate limiter is still fairly accurate
+            std::thread::sleep(Duration::from_micros(200));
+        }
+        delta_secs = (Instant::now() - start_instant).as_secs_f32();
     }
 }

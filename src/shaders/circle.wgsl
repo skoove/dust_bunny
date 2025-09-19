@@ -15,13 +15,19 @@ struct Camera {
     xy: u32,
 };
 
+struct CircleInput {
+    @location(0) position: vec2<f32>,
+    @location(1) radius: f32,
+}
+
 @group(0)
 @binding(0)
 var<uniform> camera: Camera;
 
 @vertex
 fn vs_main(
-    @builtin(vertex_index) in_vertex_index: u32
+    @builtin(vertex_index) in_vertex_index: u32,
+    circle: CircleInput
 ) -> VertexOutput {
     var out: VertexOutput;
 
@@ -29,7 +35,7 @@ fn vs_main(
     let y_pixels = f32((camera.xy >> 16u) & 0xffffu);
 
     let local_space = VERTICES[in_vertex_index];
-    let world_space = (local_space + camera.position) / camera.scale;
+    let world_space = ((local_space * circle.radius) + camera.position + circle.position) / camera.scale;
 
     let ndc_x = (world_space.x / x_pixels) * 2.0;
     let ndc_y = (world_space.y / y_pixels) * 2.0;

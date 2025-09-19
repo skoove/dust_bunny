@@ -13,8 +13,19 @@ pub struct Circle {
 }
 
 impl Circle {
+    const VERTEX_ATTRS: [wgpu::VertexAttribute; 2] =
+        wgpu::vertex_attr_array![0 => Float32x2, 1 => Float32];
+
     pub fn new(position: Vec2, radius: f32) -> Self {
         Self { position, radius }
+    }
+
+    pub fn buffer_descriptor<'a>() -> wgpu::VertexBufferLayout<'a> {
+        wgpu::VertexBufferLayout {
+            array_stride: std::mem::size_of::<Circle>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Instance,
+            attributes: &Self::VERTEX_ATTRS,
+        }
     }
 }
 
@@ -52,8 +63,8 @@ impl RenderCommands {
     }
 
     /// Add a circle with a position and radius to the render commands
-    pub fn draw_circle(&mut self, position: Vec2, radius: f32) {
-        self.circles.push(Circle::new(position, radius));
+    pub fn draw_circle(&mut self, position: impl Into<Vec2>, radius: f32) {
+        self.circles.push(Circle::new(position.into(), radius));
     }
 
     /// Add multiple circles with a position and radius to the render commands
@@ -320,7 +331,7 @@ impl Renderer {
                 module: &shader,
                 entry_point: Some("vs_main"),
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
-                buffers: &[],
+                buffers: &[Circle::buffer_descriptor()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
