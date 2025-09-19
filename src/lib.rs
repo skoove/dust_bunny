@@ -10,14 +10,19 @@ use wgpu::util::DeviceExt;
 pub struct Circle {
     position: Vec2,
     radius: f32,
+    colour: [u8; 4],
 }
 
 impl Circle {
-    const VERTEX_ATTRS: [wgpu::VertexAttribute; 2] =
-        wgpu::vertex_attr_array![0 => Float32x2, 1 => Float32];
+    const VERTEX_ATTRS: [wgpu::VertexAttribute; 3] =
+        wgpu::vertex_attr_array![0 => Float32x2, 1 => Float32, 2 => Unorm8x4];
 
-    pub fn new(position: Vec2, radius: f32) -> Self {
-        Self { position, radius }
+    pub fn new(position: Vec2, radius: f32, colour: (u8, u8, u8, u8)) -> Self {
+        Self {
+            position,
+            radius,
+            colour: [colour.0, colour.1, colour.2, colour.3],
+        }
     }
 
     pub fn buffer_descriptor<'a>() -> wgpu::VertexBufferLayout<'a> {
@@ -63,8 +68,14 @@ impl RenderCommands {
     }
 
     /// Add a circle with a position and radius to the render commands
-    pub fn draw_circle(&mut self, position: impl Into<Vec2>, radius: f32) {
-        self.circles.push(Circle::new(position.into(), radius));
+    pub fn draw_circle(
+        &mut self,
+        position: impl Into<Vec2>,
+        radius: f32,
+        colour: (u8, u8, u8, u8),
+    ) {
+        self.circles
+            .push(Circle::new(position.into(), radius, colour));
     }
 
     /// Add multiple circles with a position and radius to the render commands

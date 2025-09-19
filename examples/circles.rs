@@ -33,20 +33,28 @@ fn main() {
         angle %= std::f32::consts::TAU;
 
         let orbit_radius = 10.0;
-        let count = 5;
+        let count = 16;
 
-        let mut positions = vec![];
+        let mut circle_data = Vec::with_capacity(5);
 
         for i in 0..count {
             let offset = (i as f32 / count as f32) * std::f32::consts::TAU;
-            positions.push(Vec2::new(
+            let pos = Vec2::new(
                 (angle + offset).cos() * orbit_radius,
                 (angle + offset).sin() * orbit_radius,
-            ));
+            );
+
+            let hue = 360.0 / count as f64;
+
+            let colour = hsv::hsv_to_rgb(hue * i as f64, 1.0, 1.0);
+
+            println!("{colour:#?}");
+
+            circle_data.push((pos, (colour.0, colour.1, colour.2, 255)));
         }
 
-        for pos in positions {
-            render_commands.draw_circle(pos, 3.0);
+        for circle in circle_data {
+            render_commands.draw_circle(circle.0, 1.5, circle.1);
         }
 
         renderer.render(&render_commands).unwrap();

@@ -7,6 +7,7 @@ var<private> VERTICES: array<vec2<f32>, 3> = array<vec2<f32>, 3>(
 struct VertexOutput {
     @builtin(position) clip_space: vec4<f32>,
     @location(0) local_space: vec2<f32>,
+    @location(1) colour: vec4<f32>,
 };
 
 struct Camera {
@@ -18,6 +19,7 @@ struct Camera {
 struct CircleInput {
     @location(0) position: vec2<f32>,
     @location(1) radius: f32,
+    @location(2) colour: vec4<f32>,
 }
 
 @group(0)
@@ -44,6 +46,7 @@ fn vs_main(
 
     out.clip_space = clip_space;
     out.local_space = local_space;
+    out.colour = circle.colour;
     return out;
 }
 
@@ -53,7 +56,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     if length(in.local_space) > 1 {
         alpha = 0.0;
     } else {
-        alpha = 1.0;
+        alpha = in.colour.a;
     }
-    return vec4<f32>(1.0, 1.0, 1.0, alpha);
+    return vec4<f32>(in.colour.rgb, alpha);
 }
