@@ -49,6 +49,8 @@ fn main() {
 
         renderer.render(&render_commands).unwrap();
 
+        render_commands.clear();
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => break 'running,

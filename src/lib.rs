@@ -98,10 +98,11 @@ pub struct Renderer {
     pub camera: Camera,
     camera_buffer: wgpu::Buffer,
     camera_bind_group: wgpu::BindGroup,
+    circles_buffer: wgpu::Buffer,
 }
 
 impl Renderer {
-    pub fn render(&mut self, _render_commands: &RenderCommands) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self, render_commands: &RenderCommands) -> Result<(), wgpu::SurfaceError> {
         if !self.surface_configured {
             return Ok(());
         }
@@ -131,6 +132,13 @@ impl Renderer {
         self.queue
             .write_buffer(&self.camera_buffer, 0, bytemuck::cast_slice(&[self.camera]));
 
+        // write circle buffer
+        self.queue.write_buffer(
+            &self.circles_buffer,
+            0,
+            bytemuck::cast_slice(&render_commands.circles),
+        );
+
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("render pass"),
@@ -150,17 +158,12 @@ impl Renderer {
 
             render_pass.set_pipeline(&self.circle_pipeline);
             render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
-            render_pass.draw(0..3, 0..1);
+            render_pass.set_vertex_buffer(0, self.circles_buffer.slice(..));
+            render_pass.draw(0..3, 0..render_commands.circles.len() as u32);
         }
 
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
-
-        // for instruction in instructions {
-        //     match instruction {
-        //         RenderInstruction::Circle { position, radius } => todo!(),
-        //     }
-        // }
 
         return Ok(());
     }
@@ -267,6 +270,15 @@ impl Renderer {
             }],
         });
 
+        let circles_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("circles buffer"),
+            size: 1 << 28,
+            usage: wgpu::BufferUsages::STORAGE
+                | wgpu::BufferUsages::VERTEX
+                | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+
         surface.configure(&device, &surface_config);
 
         let circle_pipeline =
@@ -283,6 +295,7 @@ impl Renderer {
             camera,
             camera_buffer,
             camera_bind_group,
+            circles_buffer,
         }
     }
 
